@@ -1,0 +1,29 @@
+class Solution {
+    public Node cloneGraph(Node node) {
+       if(node==null)return null;
+       Node root=new Node(node.val);
+       HashMap<Integer, Node>mp=new HashMap<>();
+       mp.put(node.val, root);
+       solve(node, root, mp);
+       return root; 
+    }
+    public void solve(Node node, Node root, HashMap<Integer, Node>mp)
+    {
+        if(node==null)return;
+        for(Node neg:node.neighbors)
+        {
+            if(mp.containsKey(neg.val))
+            {
+                Node temp=mp.get(neg.val);
+                root.neighbors.add(temp);
+            }
+            else
+            {
+                Node temp=new Node(neg.val);
+                mp.put(temp.val, temp);
+                root.neighbors.add(temp);
+                solve(neg, temp, mp);
+            }
+        }
+    }
+}
