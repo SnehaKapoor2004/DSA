@@ -1,0 +1,128 @@
+
+class Solution {
+
+    public int[] findRedundantDirectedConnection(int[][] edges) {
+
+        int n = edges.length;
+
+        int[] parent = new int[n + 1];
+
+        int[] edge1 = null;
+        int[] edge2 = null;
+        for (int[] edge : edges) {
+
+            int u = edge[0];
+            int v = edge[1];
+
+            if (parent[v] == 0) {
+                parent[v] = u;
+            } 
+            else {
+                edge1 = new int[]{parent[v], v};
+                edge2 = edge;
+
+                break;
+            }
+        }
+
+        ArrayList<Integer>[] graph = new ArrayList[n + 1];
+
+        for (int i = 1; i <= n; i++) {
+            graph[i] = new ArrayList<>();
+        }
+
+        for (int[] edge : edges) {
+
+            // Temporarily skip second edge
+            if (edge2 != null &&
+                edge[0] == edge2[0] &&
+                edge[1] == edge2[1]) {
+                continue;
+            }
+
+            graph[edge[0]].add(edge[1]);
+        }
+        boolean[] visited = new boolean[n + 1];
+        boolean[] path = new boolean[n + 1];
+
+        for (int i = 1; i <= n; i++) {
+
+            if (!visited[i]) {
+
+                if (dfs(i, graph, visited, path)) {
+                    if (edge2 != null) {
+                        return edge1;
+                    }
+                    return findCycleEdge(edges);
+                }
+            }
+        }
+        if (edge2 != null) {
+            return edge2;
+        }
+
+        return new int[0];
+    }
+
+    public boolean dfs(int node,
+                       ArrayList<Integer>[] graph,
+                       boolean[] visited,
+                       boolean[] path) {
+
+        visited[node] = true;
+        path[node] = true;
+
+        for (int neighbor : graph[node]) {
+
+            if (path[neighbor]) {
+                return true;
+            }
+
+            if (!visited[neighbor]) {
+
+                if (dfs(neighbor, graph, visited, path)) {
+                    return true;
+                }
+            }
+        }
+
+        path[node] = false;
+
+        return false;
+    }
+
+    public int[] findCycleEdge(int[][] edges) {
+
+        int n = edges.length;
+
+        for (int i = n - 1; i >= 0; i--) {
+
+            ArrayList<Integer>[] graph = new ArrayList[n + 1];
+
+            for (int j = 1; j <= n; j++) {
+                graph[j] = new ArrayList<>();
+            }
+
+            boolean[] visited = new boolean[n + 1];
+            boolean[] path = new boolean[n + 1];
+
+            for (int j = 0; j < n; j++) {
+
+                if (i == j) {
+                    continue;
+                }
+
+                graph[edges[j][0]].add(edges[j][1]);
+            }
+
+            for (int j = 1; j <= n; j++) {
+                if (!visited[j] &&
+                    dfs(j, graph, visited, path)) {
+                    return edges[i];
+                }
+            }
+        }
+
+        return new int[0];
+    }
+}
